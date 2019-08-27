@@ -5,6 +5,7 @@ import { classNamesFunction, divProperties, getNativeProps, getWindow } from '..
 import { FocusZone, FocusZoneDirection } from '../../FocusZone';
 import { Icon } from '../../Icon';
 import { INav, INavLink, INavLinkGroup, INavProps, INavStyleProps, INavStyles } from './Nav.types';
+import { IFocusZone } from '../FocusZone';
 
 // The number pixels per indentation level for Nav links.
 const _indentationSize = 14;
@@ -33,6 +34,8 @@ export class NavBase extends React.Component<INavProps, INavState> implements IN
     groups: null
   };
 
+  private _rootRef = React.createRef<IFocusZone>();
+
   constructor(props: INavProps) {
     super(props);
 
@@ -41,6 +44,12 @@ export class NavBase extends React.Component<INavProps, INavState> implements IN
       isLinkExpandStateChanged: false,
       selectedKey: props.initialSelectedKey || props.selectedKey
     };
+  }
+
+  public componentDidMount() {
+    if (this.props.isOnTop && this._rootRef && this._rootRef.current) {
+      this._rootRef.current.focus();
+    }
   }
 
   public render(): JSX.Element | null {
@@ -55,7 +64,7 @@ export class NavBase extends React.Component<INavProps, INavState> implements IN
     const classNames = getClassNames(styles!, { theme: theme!, className, isOnTop, groups });
 
     return (
-      <FocusZone direction={FocusZoneDirection.vertical}>
+      <FocusZone direction={FocusZoneDirection.vertical} componentRef={this._rootRef}>
         <nav role="navigation" className={classNames.root} aria-label={this.props.ariaLabel}>
           {groupElements}
         </nav>
