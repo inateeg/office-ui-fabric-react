@@ -35,9 +35,12 @@ export class NavBase extends React.Component<INavProps, INavState> implements IN
   };
 
   private _rootRef = React.createRef<IFocusZone>();
+  private _isLastRenderingOnTop: boolean;
 
   constructor(props: INavProps) {
     super(props);
+
+    this._isLastRenderingOnTop = false;
 
     this.state = {
       isGroupCollapsed: {},
@@ -46,10 +49,12 @@ export class NavBase extends React.Component<INavProps, INavState> implements IN
     };
   }
 
+  public componentDidUpdate() {
+    this._setNavWithFocus();
+  }
+
   public componentDidMount() {
-    if (this.props.isOnTop && this._rootRef && this._rootRef.current) {
-      this._rootRef.current.focus();
-    }
+    this._setNavWithFocus();
   }
 
   public render(): JSX.Element | null {
@@ -74,6 +79,13 @@ export class NavBase extends React.Component<INavProps, INavState> implements IN
 
   public get selectedKey(): string | undefined {
     return this.state.selectedKey;
+  }
+
+  private _setNavWithFocus() {
+    if (!this._isLastRenderingOnTop && this.props.isOnTop && this._rootRef && this._rootRef.current) {
+      this._rootRef.current.focus();
+    }
+    this._isLastRenderingOnTop = !!this.props.isOnTop;
   }
 
   private _onRenderLink = (link: INavLink): JSX.Element => {
